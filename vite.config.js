@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-  const backend = env.VITE_BACKEND_URL || 'https://smart-reporting.vercel.app'
+  const backend = 'https://smart-reporting.vercel.app'
 
   return {
     plugins: [vue(), tailwindcss()],
