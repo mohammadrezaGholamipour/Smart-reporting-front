@@ -1,120 +1,122 @@
-<template>
-  <aside 
-    :class="[
-      'relative flex flex-col h-screen transition-all duration-500 ease-in-out glass-panel border-l border-amber-500/20 z-30 select-none',
-      isCollapsed ? 'w-20' : 'w-72'
-    ]"
-  >
-    <div class="absolute -top-20 -right-20 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+<script setup>
+import { computed } from 'vue'
+import { useMediaQuery, useStorage } from '@vueuse/core'
+import { ChevronsRight } from 'lucide-vue-next'
+import SarayeIraniLogo from '@/components/common/SarayeIraniLogo.vue'
+import { NAV_ITEMS } from '@/utils/nav'
+import { useHealth } from '@/composables/useHealth'
+import { useSourcesStore } from '@/stores/sources'
+import { faNumber } from '@/utils/format'
 
-    <button 
-      @click="toggleSidebar"
-      class="absolute -left-3.5 top-8 w-7 h-7 rounded-full bg-slate-900 border border-amber-500/40 text-amber-400 flex items-center justify-center shadow-lg hover:scale-110 hover:border-amber-300 transition-all duration-300 z-50 cursor-pointer"
-      :title="isCollapsed ? 'باز کردن منو' : 'بستن منو'"
+const sources = useSourcesStore()
+const { online } = useHealth()
+
+// auto: روی تبلت جمع‌شده و روی دسکتاپ باز؛ با انتخاب کاربر برای همیشه ثابت می‌شود.
+const pref = useStorage('sr-sidebar', 'auto')
+const isWide = useMediaQuery('(min-width: 1280px)')
+const collapsed = computed(() => pref.value === 'closed' || (pref.value === 'auto' && !isWide.value))
+const toggle = () => (pref.value = collapsed.value ? 'open' : 'closed')
+
+const status = computed(() => {
+  if (online.value === null) return { label: 'در حال بررسی اتصال…', dot: 'bg-ink-mute', ping: false }
+  return online.value
+    ? { label: 'سرور متصل است', dot: 'bg-ok', ping: true }
+    : { label: 'اتصال به سرور برقرار نیست', dot: 'bg-danger', ping: false }
+})
+
+const badge = (item) => (item.badge === 'ready' && sources.readyCount ? faNumber(sources.readyCount) : null)
+</script>
+
+<template>
+  <aside
+    data-chrome
+    class="glass relative flex h-dvh flex-col border-e transition-[width] duration-500 ease-[var(--e-out)]"
+    :class="collapsed ? 'w-[4.75rem]' : 'w-72'"
+    aria-label="منوی اصلی"
+  >
+    <!-- دکمهٔ جمع/باز کردن روی لبهٔ منو -->
+    <button
+      type="button"
+      class="absolute -end-3.5 top-9 z-10 grid size-7 place-items-center rounded-full border border-line bg-card text-ink-soft shadow-soft transition-[transform,color,border-color] duration-300 hover:scale-110 hover:border-brand hover:text-brand-ink"
+      :aria-label="collapsed ? 'باز کردن منو' : 'جمع کردن منو'"
+      :aria-expanded="!collapsed"
+      @click="toggle"
     >
-      <svg 
-        class="w-4 h-4 transition-transform duration-500" 
-        :class="{ 'rotate-180': isCollapsed }" 
-        fill="none" 
-        stroke="currentColor" 
-        viewBox="0 0 24 24"
-      >
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
-      </svg>
+      <ChevronsRight class="size-4 transition-transform duration-500 ease-[var(--e-spring)]" :class="collapsed ? 'rotate-0' : 'rotate-180'" aria-hidden="true" />
     </button>
 
-    <div class="p-5 flex items-center border-b border-amber-500/15 overflow-hidden">
-      <div class="flex items-center gap-3.5 min-w-max">
-        <SarayeIraniLogo />
-      </div>
+    <div class="flex h-[4.5rem] items-center border-b border-line px-[0.95rem]">
+      <RouterLink to="/" aria-label="سرای ایرانی؛ صفحهٔ اصلی"><SarayeIraniLogo :compact="collapsed" /></RouterLink>
     </div>
 
-    <nav class="flex-1 px-3 py-6 space-y-2 overflow-y-auto custom-scrollbar">
-      <router-link
-        v-for="item in navItems"
-        :key="item.path"
-        :to="item.path"
-        v-slot="{ isActive }"
-        class="block group relative"
+    <nav class="scroll-thin flex-1 space-y-1.5 px-3 py-5" :class="collapsed ? 'overflow-visible' : 'overflow-y-auto'">
+      <RouterLink
+        v-for="(item, i) in NAV_ITEMS"
+        :key="item.to"
+        v-slot="{ href, navigate, isActive, isExactActive }"
+        :to="item.to"
+        custom
       >
-        <div
-          :class="[
-            'flex items-center gap-4 px-3.5 py-3 rounded-xl transition-all duration-300 relative overflow-hidden',
-            isActive 
-              ? 'bg-gradient-to-r from-amber-500/20 via-amber-500/10 to-transparent text-amber-300 border border-amber-500/30 font-bold shadow-lg shadow-amber-500/5' 
-              : 'text-slate-400 hover:text-amber-200 hover:bg-slate-800/50 border border-transparent'
-          ]"
+        <a
+          :href="href"
+          class="group reveal relative flex h-12 items-center gap-3.5 rounded-xl px-3.5 text-sm font-medium transition-[background-color,color,transform] duration-300 active:scale-[0.97]"
+          :class="(item.exact ? isExactActive : isActive) ? 'bg-brand-soft text-brand-ink' : 'text-ink-soft hover:bg-card-soft hover:text-ink'"
+          :style="{ '--i': i + 1 }"
+          :aria-current="(item.exact ? isExactActive : isActive) ? 'page' : undefined"
+          @click="navigate"
         >
-          <div 
-            v-if="isActive" 
-            class="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-7 rounded-l-full bg-gradient-to-b from-amber-300 to-amber-500 shadow-[0_0_12px_rgba(229,169,60,0.8)]"
-          ></div>
-
-          <div :class="[
-            'w-6 h-6 transition-transform duration-300 group-hover:scale-110 flex-shrink-0 flex items-center justify-center',
-            isActive ? 'text-amber-400 drop-shadow-[0_0_8px_rgba(229,169,60,0.5)]' : 'text-slate-400 group-hover:text-amber-300'
-          ]">
-            <svg v-if="item.icon === 'dashboard'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-            <svg v-else-if="item.icon === 'document'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            <svg v-else-if="item.icon === 'chat'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-            <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-          </div>
-
-          <span v-if="!isCollapsed" class="text-sm font-medium whitespace-nowrap transition-opacity duration-300">
+          <!-- نشانگر فعال: از لبهٔ منو بیرون می‌آید -->
+          <span
+            class="absolute inset-y-2.5 -end-3 w-1 origin-center rounded-s-full bg-brand transition-transform duration-500 ease-[var(--e-spring)]"
+            :class="(item.exact ? isExactActive : isActive) ? 'scale-y-100' : 'scale-y-0'"
+            aria-hidden="true"
+          />
+          <component
+            :is="item.icon"
+            class="size-5 shrink-0 transition-transform duration-300 ease-[var(--e-spring)] group-hover:scale-110 group-hover:-rotate-6"
+            aria-hidden="true"
+          />
+          <span class="truncate transition-[opacity,transform] duration-300" :class="collapsed ? 'pointer-events-none translate-x-2 opacity-0' : 'opacity-100'">
             {{ item.name }}
           </span>
-
-          <span 
-            v-if="item.badge && !isCollapsed" 
-            class="mr-auto px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30"
+          <span
+            v-if="badge(item) && !collapsed"
+            class="ms-auto animate-pop rounded-full bg-brand px-2 py-0.5 text-[0.7rem] font-bold text-on-brand"
+            :title="`${badge(item)} سند آمادهٔ پرسش`"
           >
-            {{ item.badge }}
+            {{ badge(item) }}
           </span>
-        </div>
 
-        <div 
-          v-if="isCollapsed" 
-          class="absolute right-full top-1/2 -translate-y-1/2 mr-3 px-3 py-1.5 rounded-lg bg-slate-900 border border-amber-500/30 text-amber-200 text-xs font-medium whitespace-nowrap shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-300 z-50"
-        >
-          {{ item.name }}
-        </div>
-      </router-link>
+          <!-- راهنمای کنار آیکون در حالت جمع‌شده -->
+          <span
+            v-if="collapsed"
+            role="tooltip"
+            class="pointer-events-none absolute start-full z-50 ms-4 translate-x-2 whitespace-nowrap rounded-lg bg-ink px-3 py-1.5 text-xs font-medium text-paper opacity-0 shadow-lift transition-[opacity,transform] duration-200 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100"
+          >
+            {{ item.name }}
+          </span>
+        </a>
+      </RouterLink>
     </nav>
 
-    <div class="p-4 border-t border-amber-500/15">
-      <div 
-        :class="[
-          'rounded-xl bg-slate-900/80 border border-amber-500/20 p-3 transition-all duration-300 flex items-center gap-3',
-          isCollapsed ? 'justify-center' : 'justify-between'
-        ]"
+    <div class="border-t border-line p-3">
+      <div
+        class="flex items-center gap-3 overflow-hidden rounded-xl bg-card-soft p-3 transition-[padding] duration-300"
+        :class="collapsed && 'justify-center px-0'"
+        role="status"
+        :title="status.label"
       >
-        <div class="flex items-center gap-2.5">
-          <span class="relative flex h-3 w-3">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-          </span>
-          <div v-if="!isCollapsed" class="flex flex-col">
-            <span class="text-xs font-bold text-slate-200">هوش مصنوعی فعال</span>
-            <span class="text-[10px] text-slate-400">شعبه مرکزی</span>
-          </div>
+        <span class="relative flex size-2.5 shrink-0" aria-hidden="true">
+          <span v-if="status.ping" class="absolute inline-flex size-full animate-ping rounded-full opacity-60" :class="status.dot" />
+          <span class="relative inline-flex size-2.5 rounded-full" :class="status.dot" />
+        </span>
+        <div v-if="!collapsed" class="min-w-0 animate-fade">
+          <p class="truncate text-xs font-bold text-ink">{{ status.label }}</p>
+          <p class="truncate text-[0.7rem] text-ink-mute">
+            {{ sources.readyCount ? `${faNumber(sources.readyCount)} سند آمادهٔ پرسش` : 'هنوز سندی آماده نیست' }}
+          </p>
         </div>
-        <span v-if="!isCollapsed" class="text-[10px] font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">v2.5</span>
       </div>
     </div>
   </aside>
 </template>
-
-<script setup>
-import { ref } from 'vue'
-import SarayeIraniLogo from '@/components/common/SarayeIraniLogo.vue'
-
-const isCollapsed = ref(false)
-const toggleSidebar = () => { isCollapsed.value = !isCollapsed.value }
-
-const navItems = [
-  { name: 'داشبورد مدیریتی', path: '/dashboard', icon: 'dashboard', badge: 'زنده' },
-  { name: 'مدیریت اسناد PDF', path: '/sources', icon: 'document', badge: 'مدیر' },
-  { name: 'چت و تحلیل هوشمند', path: '/chat', icon: 'chat' },
-  { name: 'جستجوی داده‌ها', path: '/search', icon: 'search' }
-]
-</script>

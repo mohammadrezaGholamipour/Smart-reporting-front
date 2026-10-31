@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { FileText, Trash2, Zap, MessageSquare, AlertCircle, BarChart3 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import BaseButton from '@/components/common/BaseButton.vue'
+import ToggleSwitch from '@/components/common/ToggleSwitch.vue'
 import StatusBadge from '@/components/common/StatusBadge.vue'
 import PipelineStepper from './PipelineStepper.vue'
 import { useSourcesStore } from '@/stores/sources'
@@ -37,24 +38,26 @@ function openDashboard() {
 </script>
 
 <template>
-  <article class="rounded-panel border border-line bg-card p-5 shadow-sm">
-    <header class="flex items-start gap-4">
-      <div class="grid size-12 shrink-0 place-items-center rounded-2xl bg-lapis/10 text-lapis">
+  <article class="lift rounded-panel border border-line bg-card p-4 shadow-soft sm:p-5">
+    <header class="flex items-start gap-3 sm:gap-4">
+      <div class="relative grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-soft text-brand-ink">
         <FileText class="size-6" aria-hidden="true" />
+        <span class="absolute -bottom-1.5 rounded-md bg-ink px-1 text-[0.55rem] font-black leading-4 text-paper" aria-hidden="true">PDF</span>
       </div>
 
       <div class="min-w-0 flex-1">
-        <h3 class="truncate text-base font-bold text-ink" :title="source.name" dir="auto">{{ source.name }}</h3>
+        <h3 class="truncate text-base font-bold text-ink" :title="source.name" dir="auto">{{ source.name?.replace(/\.pdf$/i, '') }}</h3>
         <p class="mt-0.5 text-xs text-ink-mute">
           {{ faDate(source.created_at) }}
           <template v-if="source.page_count"> · {{ faNumber(source.page_count) }} صفحه</template>
         </p>
       </div>
 
-      <StatusBadge :status="source.status" />
+      <StatusBadge :status="source.status" class="hidden sm:inline-flex" />
     </header>
+    <StatusBadge :status="source.status" class="mt-3 sm:hidden" />
 
-    <div class="mt-6 px-2">
+    <div class="mt-6 px-1 sm:px-2">
       <PipelineStepper
         :is-done="(key) => store.isStepDone(source, key)"
         :busy-step="busyStep"
@@ -63,14 +66,16 @@ function openDashboard() {
       />
     </div>
 
-    <p
-      v-if="error || source.error_message"
-      class="mt-4 flex items-start gap-2 rounded-control bg-danger-soft px-3 py-2 text-xs leading-6 text-danger"
-      role="alert"
-    >
-      <AlertCircle class="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-      <span dir="auto">{{ error?.message || source.error_message }}</span>
-    </p>
+    <Transition name="swap">
+      <p
+        v-if="error || source.error_message"
+        class="mt-4 flex items-start gap-2 rounded-control bg-danger-soft px-3 py-2 text-xs leading-6 text-danger"
+        role="alert"
+      >
+        <AlertCircle class="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+        <span dir="auto">{{ error?.message || source.error_message }}</span>
+      </p>
+    </Transition>
 
     <footer class="mt-5 flex flex-wrap items-center gap-2 border-t border-line pt-4">
       <BaseButton v-if="!isReady" size="sm" :loading="anyBusy" @click="store.runAll(source.id, { withPageindex })">
@@ -88,15 +93,14 @@ function openDashboard() {
         </BaseButton>
       </template>
 
-      <label v-if="!isReady" class="flex cursor-pointer items-center gap-2 text-xs text-ink-soft">
-        <input v-model="withPageindex" type="checkbox" class="size-4 accent-[var(--turquoise)]" />
-        ایندکس صفحه‌ای هم ساخته شود
-      </label>
-
       <BaseButton class="ms-auto" size="sm" variant="ghost" :disabled="anyBusy" aria-label="حذف سند" @click="emit('delete', source)">
         <Trash2 class="size-4" aria-hidden="true" />
-        حذف
+        <span class="hidden sm:inline">حذف</span>
       </BaseButton>
+
+      <div v-if="!isReady" class="w-full pt-1">
+        <ToggleSwitch v-model="withPageindex" label="ایندکس صفحه‌ای هم ساخته شود" />
+      </div>
     </footer>
   </article>
 </template>

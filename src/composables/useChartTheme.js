@@ -28,12 +28,13 @@ export function useChartTheme() {
       mute: read('--ink-mute'),
       line: read('--line'),
       card: read('--card'),
-      turquoise: read('--turquoise'),
+      brand: read('--brand'),
+      firouzeh: read('--firouzeh'),
       lapis: read('--lapis'),
       saffron: read('--saffron'),
       danger: read('--danger'),
       ok: read('--ok'),
-      palette: [read('--turquoise'), read('--lapis'), read('--saffron'), read('--danger'), ...extra],
+      palette: [read('--brand'), read('--firouzeh'), read('--lapis'), read('--danger'), ...extra],
       font: "'Vazirmatn Variable', Vazirmatn, Tahoma, sans-serif",
     }
   })

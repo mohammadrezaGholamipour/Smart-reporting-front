@@ -1,3 +1,3 @@
 <template>
-  <div class="animate-pulse rounded-panel bg-line/70" aria-hidden="true" />
+  <div class="skeleton rounded-panel" aria-hidden="true" />
 </template>

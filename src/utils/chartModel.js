@@ -385,8 +385,8 @@ function zoomOptions(c) {
       bottom: 12,
       borderColor: 'transparent',
       backgroundColor: withAlpha(c.line, 0.4),
-      fillerColor: withAlpha(c.turquoise, 0.18),
-      handleStyle: { color: c.turquoise },
+      fillerColor: withAlpha(c.brand, 0.18),
+      handleStyle: { color: c.brand },
       textStyle: { color: c.mute, fontFamily: c.font },
     },
   ]

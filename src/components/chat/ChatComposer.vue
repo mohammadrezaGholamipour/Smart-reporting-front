@@ -35,7 +35,7 @@ defineExpose({ focus: () => area.value?.focus(), fill: (t) => ((text.value = t),
 
 <template>
   <form
-    class="flex items-end gap-2 rounded-2xl border border-line bg-card p-2 shadow-sm transition-colors focus-within:border-turquoise"
+    class="flex items-end gap-2 rounded-3xl border border-line bg-card p-2 shadow-soft transition-[border-color,box-shadow] duration-300 focus-within:border-brand focus-within:shadow-[0_0_0_4px_color-mix(in_oklab,var(--brand)_20%,transparent)]"
     @submit.prevent="submit"
   >
     <label for="chat-input" class="sr-only">پرسش خود را بنویسید</label>
@@ -47,28 +47,32 @@ defineExpose({ focus: () => area.value?.focus(), fill: (t) => ((text.value = t),
       maxlength="4000"
       dir="auto"
       placeholder="سؤال خود را دربارهٔ اسناد بنویسید…"
-      class="max-h-44 min-h-10 flex-1 resize-none bg-transparent px-3 py-2 text-sm leading-7 text-ink outline-none placeholder:text-ink-mute"
+      class="max-h-44 min-h-11 flex-1 resize-none bg-transparent px-3 py-2.5 text-sm leading-7 text-ink outline-none placeholder:text-ink-mute"
       @input="resize"
       @keydown="onKeydown"
     />
 
-    <button
-      v-if="sending"
-      type="button"
-      class="grid size-10 shrink-0 place-items-center rounded-xl bg-danger-soft text-danger"
-      aria-label="توقف"
-      @click="emit('stop')"
-    >
-      <Square class="size-4 fill-current" />
-    </button>
-    <button
-      v-else
-      type="submit"
-      class="grid size-10 shrink-0 place-items-center rounded-xl bg-turquoise text-white transition-opacity disabled:opacity-40"
-      :disabled="!text.trim()"
-      aria-label="ارسال"
-    >
-      <SendHorizontal class="size-4 -scale-x-100" />
-    </button>
+    <Transition name="swap" mode="out-in">
+      <button
+        v-if="sending"
+        key="stop"
+        type="button"
+        class="grid size-11 shrink-0 place-items-center rounded-2xl bg-danger-soft text-danger transition-transform duration-200 active:scale-90"
+        aria-label="توقف"
+        @click="emit('stop')"
+      >
+        <Square class="size-4 fill-current" />
+      </button>
+      <button
+        v-else
+        key="send"
+        type="submit"
+        class="group grid size-11 shrink-0 place-items-center rounded-2xl bg-brand text-on-brand shadow-soft transition-[transform,opacity,box-shadow] duration-300 hover:shadow-glow active:scale-90 disabled:opacity-40 disabled:shadow-none"
+        :disabled="!text.trim()"
+        aria-label="ارسال"
+      >
+        <SendHorizontal class="size-[1.15rem] -scale-x-100 transition-transform duration-300 group-enabled:group-hover:-translate-x-0.5" />
+      </button>
+    </Transition>
   </form>
 </template>

@@ -11,7 +11,7 @@ const option = computed(() => {
   const c = t.value
   return {
     textStyle: { fontFamily: c.font },
-    color: [c.turquoise, c.lapis, c.saffron, c.danger],
+    color: [c.brand, c.lapis, c.saffron, c.danger],
     tooltip: {
       trigger: 'item',
       backgroundColor: c.card,

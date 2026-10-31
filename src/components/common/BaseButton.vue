@@ -1,51 +1,51 @@
-<template>
-  <button
-    :class="[
-      'relative inline-flex items-center justify-center font-medium transition-all duration-300 rounded-xl active:scale-95 disabled:opacity-50 disabled:pointer-events-none overflow-hidden group',
-      variantClasses,
-      sizeClasses
-    ]"
-    v-bind="$attrs"
-  >
-    <!-- Shimmer Effect Layer -->
-    <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"></span>
-    
-    <span class="relative flex items-center gap-2">
-      <slot name="icon-lead" />
-      <slot />
-      <slot name="icon-trail" />
-    </span>
-  </button>
-</template>
-
 <script setup>
 import { computed } from 'vue'
+import { RouterLink } from 'vue-router'
+import { Loader2 } from 'lucide-vue-next'
 
 const props = defineProps({
-  variant: { type: String, default: 'primary' }, // primary, secondary, outline, danger
-  size: { type: String, default: 'md' } // sm, md, lg
+  variant: { type: String, default: 'primary' }, // primary | secondary | outline | ghost | danger
+  size: { type: String, default: 'md' }, // sm | md | lg
+  loading: Boolean,
+  disabled: Boolean,
+  block: Boolean,
+  to: { type: [String, Object], default: null },
+  type: { type: String, default: 'button' },
 })
 
-const variantClasses = computed(() => {
-  switch (props.variant) {
-    case 'primary':
-      return 'bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 text-slate-950 font-bold shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 hover:brightness-110'
-    case 'secondary':
-      return 'bg-slate-800/80 hover:bg-slate-700/80 text-amber-300 border border-amber-500/20 hover:border-amber-500/40'
-    case 'outline':
-      return 'border border-amber-500/40 hover:border-amber-400 text-amber-300 hover:bg-amber-500/10'
-    case 'danger':
-      return 'bg-gradient-to-r from-red-600 to-rose-700 text-white hover:shadow-lg hover:shadow-red-500/30'
-    default:
-      return 'bg-amber-500 text-slate-950'
-  }
-})
+const tag = computed(() => (props.to ? RouterLink : 'button'))
 
-const sizeClasses = computed(() => {
-  switch (props.size) {
-    case 'sm': return 'px-3 py-1.5 text-xs'
-    case 'lg': return 'px-6 py-3.5 text-base'
-    default: return 'px-4 py-2.5 text-sm'
-  }
-})
+const variants = {
+  primary: 'bg-brand text-on-brand font-bold shadow-soft hover:shadow-glow hover:brightness-105',
+  secondary: 'bg-card-soft text-ink border border-line hover:border-brand/60 hover:text-brand-ink',
+  outline: 'border border-brand/50 text-brand-ink hover:bg-brand-soft',
+  ghost: 'text-ink-soft hover:bg-card-soft hover:text-ink',
+  danger: 'bg-danger text-white font-bold hover:brightness-110 hover:shadow-lg',
+}
+const sizes = {
+  sm: 'h-9 gap-1.5 px-3 text-xs',
+  md: 'h-11 gap-2 px-4 text-sm',
+  lg: 'h-12 gap-2.5 px-6 text-base',
+}
 </script>
+
+<template>
+  <component
+    :is="tag"
+    :to="to || undefined"
+    :type="to ? undefined : type"
+    :disabled="to ? undefined : disabled || loading"
+    :aria-busy="loading || undefined"
+    class="group relative inline-flex select-none items-center justify-center overflow-hidden whitespace-nowrap rounded-control font-medium transition-[transform,box-shadow,background-color,border-color,color,filter] duration-300 ease-out active:scale-[0.96] disabled:pointer-events-none disabled:opacity-50"
+    :class="[variants[variant] ?? variants.primary, sizes[size] ?? sizes.md, block && 'w-full']"
+  >
+    <!-- درخشش عبوری روی دکمهٔ اصلی -->
+    <span
+      v-if="variant === 'primary'"
+      class="pointer-events-none absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/35 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full"
+      aria-hidden="true"
+    />
+    <Loader2 v-if="loading" class="relative size-4 animate-spin" aria-hidden="true" />
+    <span class="relative inline-flex items-center gap-[inherit]"><slot /></span>
+  </component>
+</template>

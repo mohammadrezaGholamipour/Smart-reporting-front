@@ -50,7 +50,7 @@ function download() {
 </script>
 
 <template>
-  <section class="chart-card flex flex-col rounded-panel border border-line bg-card p-5 sm:p-6">
+  <section class="chart-card flex min-w-0 flex-col rounded-panel border border-line bg-card p-4 shadow-soft transition-shadow duration-300 hover:shadow-lift sm:p-6">
     <header class="mb-4 flex flex-wrap items-start justify-between gap-3">
       <div class="min-w-0 flex-1">
         <h3 class="font-bold leading-7 text-ink" dir="auto">{{ component.title }}</h3>
@@ -65,8 +65,8 @@ function download() {
             v-for="t in types"
             :key="t"
             type="button"
-            class="grid size-8 place-items-center rounded-lg transition-colors"
-            :class="type === t && view === 'chart' ? 'bg-card text-turquoise shadow-sm' : 'text-ink-mute hover:text-ink'"
+            class="grid size-8 place-items-center rounded-lg transition-[background-color,color,box-shadow,transform] duration-300 active:scale-90"
+            :class="type === t && view === 'chart' ? 'bg-card text-brand-ink shadow-soft' : 'text-ink-mute hover:text-ink'"
             :title="`نمودار ${TYPE_LABELS[t]}`"
             :aria-label="`نمودار ${TYPE_LABELS[t]}`"
             :aria-pressed="type === t"
@@ -78,8 +78,8 @@ function download() {
 
         <button
           type="button"
-          class="grid size-8 place-items-center rounded-lg transition-colors"
-          :class="view === 'data' ? 'bg-card-soft text-turquoise' : 'text-ink-mute hover:bg-card-soft hover:text-ink'"
+          class="grid size-8 place-items-center rounded-lg transition-[background-color,color,box-shadow,transform] duration-300 active:scale-90"
+          :class="view === 'data' ? 'bg-card-soft text-brand-ink' : 'text-ink-mute hover:bg-card-soft hover:text-ink'"
           title="نمایش داده‌ها"
           aria-label="نمایش داده‌ها"
           :aria-pressed="view === 'data'"

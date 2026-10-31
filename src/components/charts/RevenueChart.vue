@@ -49,7 +49,7 @@ const option = computed(() => {
         type: 'bar',
         barMaxWidth: 46,
         data: props.months.map((m) => m.revenue),
-        itemStyle: { color: c.turquoise, borderRadius: [8, 8, 0, 0] },
+        itemStyle: { color: c.brand, borderRadius: [8, 8, 0, 0] },
       },
       {
         name: 'تعداد سفارش',

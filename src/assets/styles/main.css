@@ -1,84 +1,467 @@
 @import "tailwindcss";
 
-@layer base {
-  :root {
-    --bg-dark: #07090e;
-    --card-bg: rgba(15, 21, 33, 0.75);
-    --saray-gold: #e5a93c;
-    --saray-red: #d92525;
-    --saray-gold-glow: rgba(229, 169, 60, 0.35);
-    --saray-accent: #00d2ff;
+/* حالت تیره با کلاس dark روی <html> (توسط useTheme مدیریت می‌شود) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ==========================================================================
+   توکن‌های رنگ — تم روشن «کاشی چینی» و تم تیره «شب بازار»
+   طلایی برند سرای ایرانی است؛ فیروزه‌ای و لاجوردی از پالت کاشی‌کاری ایرانی.
+   ========================================================================== */
+:root {
+  color-scheme: light;
+
+  --paper: #f2f4fa;
+  --card: #ffffff;
+  --card-soft: #eef1f8;
+  --line: #dfe4f0;
+  --ink: #121a30;
+  --ink-soft: #434f6b;
+  --ink-mute: #6a7693;
+  --night: #0a1022;
+
+  --brand: #e3a52f;
+  --brand-ink: #86550a;
+  --brand-soft: #fbf0d6;
+  --on-brand: #231703;
+
+  --firouzeh: #0f9e98;
+  --firouzeh-soft: #d9f3f1;
+  --lapis: #3454c8;
+  --lapis-soft: #e3e9fb;
+  --saffron: #b45f0a;
+  --saffron-soft: #fdebd3;
+  --danger: #c62f3a;
+  --danger-soft: #fde3e5;
+  --ok: #12805a;
+  --ok-soft: #d8f2e8;
+
+  --sh-soft: 0 1px 2px rgb(16 24 48 / 0.05), 0 8px 20px -10px rgb(16 24 48 / 0.12);
+  --sh-lift: 0 2px 4px rgb(16 24 48 / 0.05), 0 20px 38px -18px rgb(16 24 48 / 0.28);
+  --sh-glow: 0 12px 30px -12px color-mix(in oklab, var(--brand) 70%, transparent);
+
+  --e-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --e-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --aurora-a: rgb(227 165 47 / 0.16);
+  --aurora-b: rgb(15 158 152 / 0.12);
+  --pattern-opacity: 0.05;
+}
+
+/* در چاپ همیشه تم روشن می‌ماند (فقط روی صفحه‌نمایش تیره می‌شود). */
+@media screen {
+  :root.dark {
+    color-scheme: dark;
+
+    --paper: #080c18;
+    --card: #111729;
+    --card-soft: #18203a;
+    --line: #252e4a;
+    --ink: #edf0f8;
+    --ink-soft: #b2bbd2;
+    --ink-mute: #7d89a8;
+    --night: #03050b;
+
+    --brand: #e8ae3e;
+    --brand-ink: #f2c466;
+    --brand-soft: #2a2314;
+    --on-brand: #1e1403;
+
+    --firouzeh: #35cdc3;
+    --firouzeh-soft: #10312f;
+    --lapis: #7b95ff;
+    --lapis-soft: #1c264f;
+    --saffron: #f4a259;
+    --saffron-soft: #3a2713;
+    --danger: #ff7b84;
+    --danger-soft: #3d1a22;
+    --ok: #4fd8a6;
+    --ok-soft: #10372b;
+
+    --sh-soft: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 24px -12px rgb(0 0 0 / 0.55);
+    --sh-lift: 0 2px 4px rgb(0 0 0 / 0.3), 0 22px 40px -18px rgb(0 0 0 / 0.75);
+
+    --aurora-a: rgb(232 174 62 / 0.14);
+    --aurora-b: rgb(53 205 195 / 0.1);
+    --pattern-opacity: 0.06;
   }
 }
 
-body {
-  background-color: var(--bg-dark);
-  color: #f1f5f9;
-  font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
-  direction: rtl;
-  overflow-x: hidden;
+@theme inline {
+  --font-sans: 'Vazirmatn Variable', Vazirmatn, system-ui, -apple-system, Tahoma, sans-serif;
+
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-card-soft: var(--card-soft);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-mute: var(--ink-mute);
+  --color-night: var(--night);
+  --color-brand: var(--brand);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-soft: var(--brand-soft);
+  --color-on-brand: var(--on-brand);
+  --color-firouzeh: var(--firouzeh);
+  --color-firouzeh-soft: var(--firouzeh-soft);
+  --color-lapis: var(--lapis);
+  --color-lapis-soft: var(--lapis-soft);
+  --color-saffron: var(--saffron);
+  --color-saffron-soft: var(--saffron-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+
+  --radius-panel: 1.25rem;
+  --radius-control: 0.8rem;
+
+  --shadow-soft: var(--sh-soft);
+  --shadow-lift: var(--sh-lift);
+  --shadow-glow: var(--sh-glow);
 }
 
-/* Glassmorphism Classes */
-.glass-panel {
-  background: rgba(15, 22, 36, 0.7);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(229, 169, 60, 0.18);
-  border-radius: 1rem;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+@theme {
+  --animate-rise: rise 0.6s var(--e-out) both;
+  --animate-pop: pop 0.45s var(--e-spring) both;
+  --animate-fade: fade 0.4s ease both;
+  --animate-float: float 5s ease-in-out infinite;
+  --animate-spin-slow: spin 22s linear infinite;
+  --animate-grow: grow 0.9s var(--e-out) both;
+  --animate-shimmer: shimmer 1.7s linear infinite;
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes pop {
+    from { opacity: 0; transform: scale(0.92) translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  @keyframes grow {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+  @keyframes shimmer {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+  }
 }
 
-.glass-panel-hover {
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.glass-panel-hover:hover {
-  border-color: rgba(229, 169, 60, 0.45);
-  box-shadow: 0 12px 35px -10px rgba(229, 169, 60, 0.3);
-  transform: translateY(-3px);
+/* ==========================================================================
+   پایه
+   ========================================================================== */
+@layer base {
+  html {
+    background: var(--paper);
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    min-height: 100dvh;
+    background: transparent;
+    color: var(--ink);
+    font-family: var(--font-sans);
+    direction: rtl;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* پس‌زمینه: دو لکهٔ نور آرام + نقش هشت‌پر خاتم با شفافیت بسیار کم */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background:
+      radial-gradient(60rem 32rem at 100% -8%, var(--aurora-a), transparent 65%),
+      radial-gradient(52rem 30rem at -6% 8%, var(--aurora-b), transparent 65%);
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: var(--ink);
+    opacity: var(--pattern-opacity);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Cg fill='none' stroke='black' stroke-width='1.1'%3E%3Crect x='22' y='22' width='28' height='28'/%3E%3Crect x='22' y='22' width='28' height='28' transform='rotate(45 36 36)'/%3E%3Ccircle cx='0' cy='0' r='4'/%3E%3Ccircle cx='72' cy='0' r='4'/%3E%3Ccircle cx='0' cy='72' r='4'/%3E%3Ccircle cx='72' cy='72' r='4'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 72px 72px;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Cg fill='none' stroke='black' stroke-width='1.1'%3E%3Crect x='22' y='22' width='28' height='28'/%3E%3Crect x='22' y='22' width='28' height='28' transform='rotate(45 36 36)'/%3E%3Ccircle cx='0' cy='0' r='4'/%3E%3Ccircle cx='72' cy='0' r='4'/%3E%3Ccircle cx='0' cy='72' r='4'/%3E%3Ccircle cx='72' cy='72' r='4'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 72px 72px;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--brand) 38%, transparent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+    border-radius: 0.5rem;
+  }
+
+  button:not(:disabled),
+  [role='button'],
+  label[for],
+  summary {
+    cursor: pointer;
+  }
+
+  input[type='range'] {
+    accent-color: var(--brand);
+  }
 }
 
-/* Gold Gradient & Text */
-.text-gold-gradient {
-  background: linear-gradient(135deg, #fff3ad 0%, #e5a93c 50%, #b87b14 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+/* ==========================================================================
+   کامپوننت‌های مشترک
+   ========================================================================== */
+@layer components {
+  /* شیشهٔ نیمه‌شفاف برای نوار بالا، منوی کناری و منوی پایین */
+  .glass {
+    background: color-mix(in oklab, var(--card) 78%, transparent);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+    border-color: color-mix(in oklab, var(--line) 85%, transparent);
+  }
+
+  /* بالا آمدن کارت هنگام هاور */
+  .lift {
+    transition: transform 0.35s var(--e-out), box-shadow 0.35s var(--e-out), border-color 0.25s;
+  }
+  @media (hover: hover) {
+    .lift:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--sh-lift);
+      border-color: color-mix(in oklab, var(--brand) 45%, var(--line));
+    }
+  }
+
+  /* ورود پلکانی؛ با --i تأخیر هر آیتم تعیین می‌شود */
+  .reveal {
+    animation: rise 0.6s var(--e-out) both;
+    animation-delay: calc(var(--i, 0) * 55ms);
+  }
+
+  .skeleton {
+    background: linear-gradient(100deg, var(--line) 30%, color-mix(in oklab, var(--line) 40%, var(--card)) 50%, var(--line) 70%);
+    background-size: 200% 100%;
+    animation: shimmer 1.7s linear infinite;
+  }
+
+  .text-brand-gradient {
+    background: linear-gradient(120deg, var(--brand-ink), var(--brand) 60%, var(--brand-ink));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .scroll-thin {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--ink-mute) 45%, transparent) transparent;
+  }
+  .scroll-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scroll-thin::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--ink-mute) 45%, transparent);
+    border-radius: 999px;
+  }
+
+  /* باز و بسته شدن نرم بخش‌ها (بدون نیاز به دانستن ارتفاع) */
+  .fold {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows 0.4s var(--e-out), opacity 0.3s;
+  }
+  .fold[data-open='true'] {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+  .fold > * {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* ---- باکس انتخاب سند (SourcePicker) و کارت‌های رادیویی ---- */
+  .pick-face {
+    position: relative;
+    border: 1.5px solid var(--line);
+    background: var(--card);
+    border-radius: var(--radius-panel);
+    transition:
+      border-color 0.25s,
+      background-color 0.3s,
+      box-shadow 0.4s var(--e-out),
+      transform 0.4s var(--e-out);
+  }
+  @media (hover: hover) {
+    label:hover > .pick-face {
+      border-color: color-mix(in oklab, var(--brand) 55%, var(--line));
+      transform: translateY(-2px);
+      box-shadow: var(--sh-lift);
+    }
+  }
+  input:checked + .pick-face {
+    border-color: var(--brand);
+    background: var(--brand-soft);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand) 26%, transparent), var(--sh-glow);
+  }
+  input:focus-visible + .pick-face {
+    outline: 2px solid var(--brand);
+    outline-offset: 3px;
+  }
+  input:disabled + .pick-face {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .pick-check {
+    transform: scale(0) rotate(-40deg);
+    opacity: 0;
+    transition: transform 0.45s var(--e-spring), opacity 0.2s;
+  }
+  input:checked + .pick-face .pick-check {
+    transform: none;
+    opacity: 1;
+  }
+  .pick-icon {
+    transition: transform 0.45s var(--e-spring), background-color 0.3s;
+  }
+  input:checked + .pick-face .pick-icon {
+    transform: rotate(-6deg) scale(1.08);
+    background: var(--brand);
+    color: var(--on-brand);
+  }
+
+  /* حلقهٔ ضربان مرحلهٔ در حال اجرا */
+  .pulse-ring {
+    animation: pulse-ring 1.6s ease-out infinite;
+  }
+  @keyframes pulse-ring {
+    0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--brand) 55%, transparent); }
+    100% { box-shadow: 0 0 0 12px transparent; }
+  }
+
+  .typing-dot {
+    animation: typing 1.2s ease-in-out infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.15s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.45; }
+    30% { transform: translateY(-5px); opacity: 1; }
+  }
+
+  /* پیشرفت راه‌راه */
+  .bar-stripes {
+    background-image: linear-gradient(
+      135deg,
+      rgb(255 255 255 / 0.28) 25%, transparent 25%, transparent 50%,
+      rgb(255 255 255 / 0.28) 50%, rgb(255 255 255 / 0.28) 75%, transparent 75%
+    );
+    background-size: 1.1rem 1.1rem;
+    animation: stripes 0.9s linear infinite;
+  }
+  @keyframes stripes {
+    to { background-position: -1.1rem 0; }
+  }
+
+  /* پاسخ مدل (مارک‌داون) */
+  .prose-fa { font-size: 0.9rem; line-height: 2; color: var(--ink); overflow-wrap: anywhere; }
+  .prose-fa > * + * { margin-top: 0.75rem; }
+  .prose-fa h1, .prose-fa h2, .prose-fa h3, .prose-fa h4 { font-weight: 800; line-height: 1.7; margin-top: 1.25rem; }
+  .prose-fa h1 { font-size: 1.15rem; }
+  .prose-fa h2 { font-size: 1.05rem; }
+  .prose-fa h3, .prose-fa h4 { font-size: 0.95rem; }
+  .prose-fa ul, .prose-fa ol { padding-inline-start: 1.4rem; }
+  .prose-fa ul { list-style: disc; }
+  .prose-fa ol { list-style: decimal; }
+  .prose-fa li + li { margin-top: 0.25rem; }
+  .prose-fa li::marker { color: var(--brand-ink); }
+  .prose-fa strong { font-weight: 800; }
+  .prose-fa a { color: var(--lapis); text-decoration: underline; text-underline-offset: 4px; }
+  .prose-fa code {
+    background: var(--card-soft); border: 1px solid var(--line);
+    border-radius: 0.4rem; padding: 0.05rem 0.4rem; font-size: 0.82em; direction: ltr; unicode-bidi: isolate;
+  }
+  .prose-fa pre {
+    background: var(--card-soft); border: 1px solid var(--line);
+    border-radius: var(--radius-control); padding: 0.9rem 1rem; overflow-x: auto; direction: ltr; text-align: left;
+  }
+  .prose-fa pre code { background: none; border: 0; padding: 0; }
+  .prose-fa blockquote {
+    border-inline-start: 3px solid var(--brand);
+    background: var(--brand-soft); border-radius: 0.6rem; padding: 0.4rem 1rem; color: var(--ink-soft);
+  }
+  .prose-fa table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; font-size: 0.85rem; }
+  .prose-fa th, .prose-fa td { border: 1px solid var(--line); padding: 0.45rem 0.8rem; text-align: start; white-space: nowrap; }
+  .prose-fa th { background: var(--card-soft); font-weight: 700; }
+  .prose-fa hr { border-color: var(--line); }
 }
 
-.gold-glow {
-  filter: drop-shadow(0 0 12px rgba(229, 169, 60, 0.55));
+/* ==========================================================================
+   انتقال‌ها (Vue <Transition>)
+   ========================================================================== */
+.page-enter-active { transition: opacity 0.35s ease, transform 0.5s var(--e-out); }
+.page-leave-active { transition: opacity 0.18s ease, transform 0.2s ease; }
+.page-enter-from { opacity: 0; transform: translateY(16px); }
+.page-leave-to { opacity: 0; transform: translateY(-6px); }
+
+.fade-enter-active, .fade-leave-active { transition: opacity 0.28s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+
+.swap-enter-active { transition: opacity 0.3s ease, transform 0.4s var(--e-out); }
+.swap-leave-active { transition: opacity 0.15s ease, transform 0.15s ease; }
+.swap-enter-from { opacity: 0; transform: translateY(8px); }
+.swap-leave-to { opacity: 0; transform: translateY(-4px); }
+
+.sheet-enter-active, .sheet-leave-active { transition: opacity 0.3s ease; }
+.sheet-enter-active .sheet-panel, .sheet-leave-active .sheet-panel { transition: transform 0.45s var(--e-out); }
+.sheet-enter-from, .sheet-leave-to { opacity: 0; }
+.sheet-enter-from .sheet-panel, .sheet-leave-to .sheet-panel { transform: translateY(100%); }
+
+dialog[open] { animation: pop 0.35s var(--e-spring) both; }
+dialog::backdrop { animation: fade 0.3s ease both; }
+
+/* انتقال دایره‌ای هنگام تعویض تم (View Transitions API) */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) { z-index: 1; }
+::view-transition-new(root) { z-index: 2; }
+
+/* ==========================================================================
+   دسترس‌پذیری و چاپ
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
-/* Custom Interactive Inputs */
-.custom-input {
-  background: rgba(9, 13, 22, 0.8);
-  border: 1.5px solid rgba(229, 169, 60, 0.25);
-  color: #f8fafc;
-  padding: 0.75rem 1rem;
-  border-radius: 0.85rem;
-  transition: all 0.3s ease;
-  outline: none;
+@media print {
+  .no-print, [data-chrome] { display: none !important; }
+  body::before, body::after { display: none; }
+  body { background: #fff; }
+  main { padding: 0 !important; max-width: none !important; }
+  .reveal { animation: none; }
 }
 
-.custom-input:focus {
-  border-color: #e5a93c;
-  box-shadow: 0 0 18px rgba(229, 169, 60, 0.35);
-  background: rgba(14, 20, 33, 0.95);
-}
-
-/* Custom Scrollbar */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.6);
-  border-radius: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(229, 169, 60, 0.3);
-  border-radius: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(229, 169, 60, 0.6);
-}
+/* جابه‌جایی نرم کارت‌ها هنگام افزودن/حذف (TransitionGroup) */
+.list-move { transition: transform 0.5s var(--e-out); }
+.list-enter-active { transition: opacity 0.4s ease, transform 0.5s var(--e-out); }
+.list-leave-active { transition: opacity 0.25s ease, transform 0.3s ease; position: absolute; }
+.list-enter-from { opacity: 0; transform: scale(0.94) translateY(12px); }
+.list-leave-to { opacity: 0; transform: scale(0.92); }

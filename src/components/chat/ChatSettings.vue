@@ -1,5 +1,7 @@
 <script setup>
 import { computed } from 'vue'
+import { Check } from 'lucide-vue-next'
+import SourcePicker from '@/components/sources/SourcePicker.vue'
 import { RETRIEVAL_MODES } from '@/utils/constants'
 import { useSourcesStore } from '@/stores/sources'
 import { useChatStore } from '@/stores/chat'
@@ -9,55 +11,53 @@ const sources = useSourcesStore()
 const chat = useChatStore()
 
 const needsSource = computed(() => chat.settings.mode === 'pageindex' && chat.settings.sourceId == null)
-const field = 'h-10 w-full rounded-control border border-line bg-card px-3 text-sm text-ink'
 </script>
 
 <template>
-  <div class="space-y-5 text-sm">
+  <div class="space-y-6 text-sm">
     <div>
-      <label for="cs-source" class="mb-1.5 block font-medium text-ink">سند مورد پرسش</label>
-      <select id="cs-source" v-model="chat.settings.sourceId" :class="field">
-        <option :value="null">همهٔ اسناد</option>
-        <option v-for="s in sources.items" :key="s.id" :value="s.id">{{ s.name }}</option>
-      </select>
+      <p id="cs-source" class="mb-2 font-bold text-ink">سند مورد پرسش</p>
+      <SourcePicker
+        v-model="chat.settings.sourceId"
+        :items="sources.items"
+        allow-all
+        compact
+        label="سند مورد پرسش"
+      />
     </div>
 
     <fieldset>
-      <legend class="mb-1.5 font-medium text-ink">روش بازیابی</legend>
+      <legend class="mb-2 font-bold text-ink">روش بازیابی</legend>
       <div class="space-y-2">
-        <label
-          v-for="m in RETRIEVAL_MODES"
-          :key="m.value"
-          class="flex cursor-pointer items-start gap-3 rounded-control border p-3 transition-colors"
-          :class="chat.settings.mode === m.value ? 'border-turquoise bg-turquoise-soft' : 'border-line bg-card hover:bg-card-soft'"
-        >
-          <input v-model="chat.settings.mode" type="radio" name="mode" :value="m.value" class="mt-1 accent-[var(--turquoise)]" />
-          <span>
-            <span class="block font-medium text-ink">{{ m.label }}</span>
-            <span class="block text-xs leading-6 text-ink-soft">{{ m.hint }}</span>
+        <label v-for="m in RETRIEVAL_MODES" :key="m.value" class="block">
+          <input v-model="chat.settings.mode" type="radio" name="mode" :value="m.value" class="sr-only" />
+          <span class="pick-face flex items-start gap-3 p-3">
+            <span class="min-w-0 flex-1">
+              <span class="block font-bold text-ink">{{ m.label }}</span>
+              <span class="mt-0.5 block text-xs leading-6 text-ink-soft">{{ m.hint }}</span>
+            </span>
+            <span class="pick-check mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-brand text-on-brand" aria-hidden="true">
+              <Check class="size-3" stroke-width="3" />
+            </span>
           </span>
         </label>
       </div>
-      <p v-if="needsSource" class="mt-2 rounded-control bg-saffron-soft px-3 py-2 text-xs leading-6 text-saffron" role="alert">
-        برای ایندکس صفحه‌ای باید یک سند مشخص انتخاب کنید.
-      </p>
+      <Transition name="swap">
+        <p v-if="needsSource" class="mt-2 rounded-control bg-saffron-soft px-3 py-2 text-xs leading-6 text-saffron" role="alert">
+          برای ایندکس صفحه‌ای باید یک سند مشخص انتخاب کنید.
+        </p>
+      </Transition>
     </fieldset>
 
-    <div v-if="chat.settings.mode === 'embedding'">
-      <label for="cs-topk" class="mb-1.5 flex items-center justify-between font-medium text-ink">
-        تعداد قطعه‌های بازیابی‌شده
-        <span class="rounded-full bg-card-soft px-2 text-xs text-ink-soft">{{ faNumber(chat.settings.topK) }}</span>
-      </label>
-      <input
-        id="cs-topk"
-        v-model.number="chat.settings.topK"
-        type="range"
-        min="1"
-        max="10"
-        step="1"
-        class="w-full accent-[var(--turquoise)]"
-      />
-      <p class="mt-1 text-xs text-ink-mute">عدد بزرگ‌تر یعنی زمینهٔ بیشتر، اما پاسخ کندتر.</p>
+    <div class="fold" :data-open="chat.settings.mode === 'embedding'">
+      <div>
+        <label for="cs-topk" class="mb-2 flex items-center justify-between font-bold text-ink">
+          تعداد قطعه‌های بازیابی‌شده
+          <span class="rounded-full bg-brand-soft px-2.5 text-xs font-bold tabular-nums text-brand-ink">{{ faNumber(chat.settings.topK) }}</span>
+        </label>
+        <input id="cs-topk" v-model.number="chat.settings.topK" type="range" min="1" max="10" step="1" class="h-2 w-full" />
+        <p class="mt-1 text-xs text-ink-mute">عدد بزرگ‌تر یعنی زمینهٔ بیشتر، اما پاسخ کندتر.</p>
+      </div>
     </div>
   </div>
 </template>

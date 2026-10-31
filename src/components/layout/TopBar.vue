@@ -1,46 +1,65 @@
+<script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { onKeyStroke } from '@vueuse/core'
+import { Search } from 'lucide-vue-next'
+import SarayeIraniLogo from '@/components/common/SarayeIraniLogo.vue'
+import ThemeToggle from '@/components/common/ThemeToggle.vue'
+
+defineProps({ title: { type: String, default: '' }, subtitle: { type: String, default: '' } })
+
+const router = useRouter()
+const query = ref('')
+const input = ref(null)
+
+function submit() {
+  const q = query.value.trim()
+  if (!q) return
+  router.push({ name: 'search', query: { q } })
+  query.value = ''
+  input.value?.blur()
+}
+
+// کلید «/» مثل بیشتر برنامه‌ها، فوکوس را به جست‌وجو می‌برد.
+onKeyStroke('/', (e) => {
+  const tag = document.activeElement?.tagName
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement?.isContentEditable) return
+  e.preventDefault()
+  input.value?.focus()
+})
+</script>
+
 <template>
-  <header class="sticky top-0 z-40 w-full glass-panel border-b border-amber-500/20 px-6 py-3 flex items-center justify-between backdrop-blur-xl">
-    <div class="flex items-center gap-6">
-      <SarayeIraniLogo />
-      
-      <!-- Interactive Custom Search Bar -->
-      <div class="hidden md:flex items-center relative w-80">
-        <input
-          type="text"
-          placeholder="جستجوی هوشمند در داده‌های سرای ایرانی..."
-          class="custom-input w-full pr-10 pl-4 text-xs placeholder-slate-400"
-        />
-        <svg class="w-4 h-4 text-amber-400 absolute right-3.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-        </svg>
-      </div>
+  <header
+    data-chrome
+    class="glass sticky top-0 z-30 flex h-[4.5rem] items-center gap-3 border-b px-4 pt-[env(safe-area-inset-top)] sm:px-6 lg:px-8"
+  >
+    <!-- موبایل: نشان برند (منوی کناری در موبایل نیست) -->
+    <RouterLink to="/" class="md:hidden" aria-label="صفحهٔ اصلی"><SarayeIraniLogo compact /></RouterLink>
+
+    <div class="min-w-0 flex-1">
+      <Transition name="swap" mode="out-in">
+        <div :key="title">
+          <h1 class="truncate text-base font-extrabold leading-7 text-ink sm:text-lg">{{ title }}</h1>
+          <p v-if="subtitle" class="hidden truncate text-xs text-ink-mute sm:block">{{ subtitle }}</p>
+        </div>
+      </Transition>
     </div>
 
-    <!-- Quick Controls & Profile -->
-    <div class="flex items-center gap-4">
-      <button class="relative p-2.5 rounded-xl bg-slate-800/60 border border-amber-500/20 text-amber-300 hover:border-amber-400 transition-all duration-300 group">
-        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-        </svg>
-        <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-        <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-400"></span>
-      </button>
+    <form class="group relative hidden w-72 lg:block xl:w-96" role="search" @submit.prevent="submit">
+      <label for="global-search" class="sr-only">جست‌وجو در اسناد</label>
+      <Search class="pointer-events-none absolute start-3.5 top-1/2 size-4 -translate-y-1/2 text-ink-mute transition-colors group-focus-within:text-brand-ink" aria-hidden="true" />
+      <input
+        id="global-search"
+        ref="input"
+        v-model="query"
+        dir="auto"
+        placeholder="جست‌وجوی معنایی در اسناد…"
+        class="h-11 w-full rounded-xl border border-line bg-card ps-10 pe-10 text-sm text-ink outline-none transition-[border-color,box-shadow] duration-300 placeholder:text-ink-mute focus:border-brand focus:shadow-[0_0_0_4px_color-mix(in_oklab,var(--brand)_20%,transparent)]"
+      />
+      <kbd class="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 rounded-md border border-line bg-card-soft px-1.5 text-[0.7rem] text-ink-mute transition-opacity group-focus-within:opacity-0">/</kbd>
+    </form>
 
-      <div class="flex items-center gap-3 pr-3 border-r border-slate-700/60">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 p-0.5 shadow-md shadow-amber-500/20">
-          <div class="w-full h-full rounded-[10px] bg-slate-900 flex items-center justify-center text-amber-300 font-bold text-sm">
-            س‌ا
-          </div>
-        </div>
-        <div class="hidden lg:flex flex-col">
-          <span class="text-xs font-bold text-slate-100">مدیر تحلیل داده</span>
-          <span class="text-[10px] text-amber-400/80">شعبه مرکزی سرای ایرانی</span>
-        </div>
-      </div>
-    </div>
+    <ThemeToggle />
   </header>
 </template>
-
-<script setup>
-import SarayeIraniLogo from '@/components/common/SarayeIraniLogo.vue'
-</script>

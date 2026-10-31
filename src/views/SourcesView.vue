@@ -8,6 +8,7 @@ import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import SkeletonBlock from '@/components/common/SkeletonBlock.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import { useSourcesStore } from '@/stores/sources'
+import { faNumber } from '@/utils/format'
 
 const store = useSourcesStore()
 
@@ -28,11 +29,16 @@ async function confirmDelete() {
 
 <template>
   <div class="space-y-8">
-    <UploadZone :progress="store.uploadProgress" @select="onSelect" />
+    <UploadZone class="reveal" :progress="store.uploadProgress" @select="onSelect" />
 
     <section aria-labelledby="sources-title">
-      <div class="mb-4 flex items-center justify-between">
-        <h2 id="sources-title" class="text-lg font-bold">اسناد شما</h2>
+      <div class="mb-4 flex items-center justify-between gap-3">
+        <h2 id="sources-title" class="flex items-center gap-2 text-lg font-extrabold">
+          اسناد شما
+          <span v-if="store.items.length" class="animate-pop rounded-full bg-card-soft px-2.5 py-0.5 text-xs font-bold text-ink-soft">
+            {{ faNumber(store.items.length) }}
+          </span>
+        </h2>
         <BaseButton variant="ghost" size="sm" :loading="store.loading" @click="store.fetchAll()">
           <RefreshCw class="size-4" aria-hidden="true" />
           به‌روزرسانی
@@ -40,7 +46,7 @@ async function confirmDelete() {
       </div>
 
       <div v-if="store.loading && !store.loaded" class="grid gap-4 lg:grid-cols-2">
-        <SkeletonBlock v-for="n in 2" :key="n" class="h-56" />
+        <SkeletonBlock v-for="n in 2" :key="n" class="h-60" />
       </div>
 
       <EmptyState
@@ -50,9 +56,16 @@ async function confirmDelete() {
         description="یک فایل PDF بارگذاری کنید تا متن و جدول‌هایش استخراج و برای پرسش و پاسخ آماده شود."
       />
 
-      <div v-else class="grid gap-4 lg:grid-cols-2">
-        <SourceCard v-for="s in store.items" :key="s.id" :source="s" @delete="target = $event" />
-      </div>
+      <TransitionGroup v-else tag="div" name="list" class="grid gap-4 lg:grid-cols-2">
+        <SourceCard
+          v-for="(s, i) in store.items"
+          :key="s.id"
+          class="reveal"
+          :style="{ '--i': i }"
+          :source="s"
+          @delete="target = $event"
+        />
+      </TransitionGroup>
     </section>
 
     <ConfirmDialog

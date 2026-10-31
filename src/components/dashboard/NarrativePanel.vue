@@ -31,7 +31,7 @@ const activeContent = computed(() => tabs.value.find((t) => t.key === active.val
 const SEVERITY = {
   critical: { label: 'بحرانی', icon: OctagonAlert, box: 'border-danger/30 bg-danger-soft/60', chip: 'bg-danger/15 text-danger' },
   warning: { label: 'هشدار', icon: AlertTriangle, box: 'border-saffron/30 bg-saffron-soft/60', chip: 'bg-saffron/20 text-saffron' },
-  info: { label: 'یافته', icon: Lightbulb, box: 'border-line bg-card', chip: 'bg-turquoise-soft text-turquoise' },
+  info: { label: 'یافته', icon: Lightbulb, box: 'border-line bg-card', chip: 'bg-brand-soft text-brand-ink' },
 }
 const ORDER = { critical: 0, warning: 1, info: 2 }
 
@@ -47,7 +47,7 @@ const warnings = computed(() => (props.dashboard?.warnings ?? []).map(text).filt
 
 <template>
   <div class="space-y-8">
-    <section v-if="tabs.length" aria-label="تحلیل متنی" class="rounded-panel border border-line bg-card p-6">
+    <section v-if="tabs.length" aria-label="تحلیل متنی" class="reveal rounded-panel border border-line bg-card p-4 shadow-soft sm:p-6">
       <div
         v-if="tabs.length > 1"
         role="tablist"
@@ -59,7 +59,7 @@ const warnings = computed(() => (props.dashboard?.warnings ?? []).map(text).filt
           :key="tab.key"
           role="tab"
           :aria-selected="active === tab.key"
-          class="rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+          class="rounded-lg px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow] duration-300"
           :class="active === tab.key ? 'bg-card text-ink shadow-sm' : 'text-ink-soft hover:text-ink'"
           @click="active = tab.key"
         >
@@ -68,17 +68,19 @@ const warnings = computed(() => (props.dashboard?.warnings ?? []).map(text).filt
       </div>
       <h3 v-else class="mb-3 font-bold text-ink">{{ tabs[0].label }}</h3>
 
-      <div role="tabpanel" class="max-w-4xl whitespace-pre-line text-sm leading-9 text-ink-soft" dir="auto">
-        {{ activeContent }}
-      </div>
+      <Transition name="swap" mode="out-in">
+        <div :key="active" role="tabpanel" class="max-w-4xl whitespace-pre-line text-sm leading-9 text-ink-soft" dir="auto">
+          {{ activeContent }}
+        </div>
+      </Transition>
     </section>
 
     <section v-if="insights.length" aria-label="یافته‌ها و نکات">
       <h2 class="mb-3 text-sm font-bold text-ink-soft">یافته‌ها و نکات</h2>
       <ul class="grid gap-4 md:grid-cols-2">
-        <li v-for="(item, i) in insights" :key="item.id ?? i" class="rounded-panel border p-5" :class="SEVERITY[item.tone].box">
+        <li v-for="(item, i) in insights" :key="item.id ?? i" class="reveal lift rounded-panel border p-4 sm:p-5" :style="{ '--i': i }" :class="SEVERITY[item.tone].box">
           <div class="mb-2 flex items-center gap-2">
-            <component :is="SEVERITY[item.tone].icon" class="size-4.5 shrink-0" :class="item.tone === 'info' ? 'text-turquoise' : item.tone === 'warning' ? 'text-saffron' : 'text-danger'" aria-hidden="true" />
+            <component :is="SEVERITY[item.tone].icon" class="size-4.5 shrink-0" :class="item.tone === 'info' ? 'text-brand-ink' : item.tone === 'warning' ? 'text-saffron' : 'text-danger'" aria-hidden="true" />
             <h3 class="flex-1 text-sm font-bold text-ink" dir="auto">{{ item.title }}</h3>
             <span class="rounded-full px-2 py-0.5 text-[0.7rem] font-medium" :class="SEVERITY[item.tone].chip">
               {{ SEVERITY[item.tone].label }}

@@ -40,7 +40,7 @@ const option = computed(() => {
         barWidth: 18,
         data: sorted.map((r, i) => ({
           value: r.revenue,
-          itemStyle: { color: i === sorted.length - 1 ? c.turquoise : c.lapis, borderRadius: 9, opacity: i === sorted.length - 1 ? 1 : 0.55 },
+          itemStyle: { color: i === sorted.length - 1 ? c.brand : c.lapis, borderRadius: 9, opacity: i === sorted.length - 1 ? 1 : 0.55 },
         })),
         label: {
           show: true,

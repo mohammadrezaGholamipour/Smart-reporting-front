@@ -7,6 +7,8 @@ import NarrativePanel from '@/components/dashboard/NarrativePanel.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import SkeletonBlock from '@/components/common/SkeletonBlock.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
+import ToggleSwitch from '@/components/common/ToggleSwitch.vue'
+import SourcePicker from '@/components/sources/SourcePicker.vue'
 
 import { useDashboardStore } from '@/stores/dashboard'
 import { useSourcesStore } from '@/stores/sources'
@@ -83,63 +85,62 @@ function downloadJson() {
 <template>
   <div class="space-y-6">
     <!-- انتخاب سند و تنظیمات -->
-    <section class="no-print rounded-panel border border-line bg-card p-5">
-      <div class="flex flex-wrap items-end gap-4">
-        <div class="min-w-56 flex-1">
-          <label for="dashboard-source" class="mb-2 block text-sm font-medium text-ink">سند</label>
-          <select
-            id="dashboard-source"
-            v-model="selected"
-            class="h-11 w-full rounded-control border border-line bg-card px-3 text-sm text-ink"
-            :disabled="busy"
-          >
-            <option :value="null" disabled>انتخاب سند…</option>
-            <option v-for="s in eligible" :key="s.id" :value="s.id">{{ s.name || s.original_filename }}</option>
-          </select>
+    <section class="no-print reveal rounded-panel border border-line bg-card p-4 shadow-soft sm:p-6">
+      <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="text-base font-extrabold text-ink">کدام سند را تحلیل کنیم؟</h2>
+          <p class="mt-0.5 text-xs text-ink-mute">روی یک PDF بزنید تا گزارش آن باز شود یا ساخته شود.</p>
         </div>
-
-        <BaseButton :disabled="!selected || busy" :loading="store.generating" @click="generate">
+        <BaseButton :disabled="!selected || busy" :loading="store.generating" class="max-sm:w-full" @click="generate">
           <component :is="dashboard ? RefreshCw : BarChart3" class="size-4" aria-hidden="true" />
           {{ dashboard ? 'بازسازی گزارش' : 'ساخت گزارش' }}
         </BaseButton>
       </div>
 
-      <div v-if="selected" class="mt-5 space-y-3">
+      <SourcePicker v-model="selected" :items="eligible" :disabled="busy" label="انتخاب سند برای داشبورد">
+        <template #empty>
+          <p class="col-span-full rounded-control bg-card-soft px-4 py-6 text-center text-sm text-ink-soft">
+            هنوز سندی آماده نیست. ابتدا در بخش اسناد یک PDF بارگذاری و «استخراج متن» را اجرا کنید.
+          </p>
+        </template>
+      </SourcePicker>
+
+      <div class="fold" :data-open="!!selected">
         <div>
-          <label for="dashboard-instruction" class="mb-2 block text-sm font-medium text-ink">
-            تمرکز گزارش <span class="font-normal text-ink-mute">(اختیاری)</span>
-          </label>
-          <textarea
-            id="dashboard-instruction"
-            v-model="instruction"
-            rows="2"
-            maxlength="1000"
-            dir="auto"
-            placeholder="مثلاً: روی روند و مقایسه‌ها تمرکز کن؛ یا فقط مهارت‌ها را نمودار کن…"
-            class="w-full rounded-control border border-line bg-card px-3 py-3 text-sm text-ink outline-none focus:border-turquoise"
-          />
-          <div class="mt-2 flex flex-wrap gap-2">
-            <button
-              v-for="hint in DASHBOARD_HINTS"
-              :key="hint"
-              type="button"
-              class="rounded-full border border-line px-3 py-1 text-xs text-ink-soft transition-colors hover:border-turquoise hover:text-turquoise"
-              @click="instruction = hint"
-            >
-              {{ hint }}
-            </button>
+          <div class="space-y-4 border-t border-line pt-5 mt-5">
+            <div>
+              <label for="dashboard-instruction" class="mb-2 block text-sm font-medium text-ink">
+                تمرکز گزارش <span class="font-normal text-ink-mute">(اختیاری)</span>
+              </label>
+              <textarea
+                id="dashboard-instruction"
+                v-model="instruction"
+                rows="2"
+                maxlength="1000"
+                dir="auto"
+                placeholder="مثلاً: روی روند و مقایسه‌ها تمرکز کن؛ یا فقط مهارت‌ها را نمودار کن…"
+                class="w-full resize-none rounded-control border border-line bg-card px-3 py-3 text-sm leading-7 text-ink outline-none transition-[border-color,box-shadow] duration-300 placeholder:text-ink-mute focus:border-brand focus:shadow-[0_0_0_4px_color-mix(in_oklab,var(--brand)_20%,transparent)]"
+              />
+              <div class="mt-2 flex flex-wrap gap-2">
+                <button
+                  v-for="hint in DASHBOARD_HINTS"
+                  :key="hint"
+                  type="button"
+                  class="rounded-full border border-line px-3 py-1.5 text-xs text-ink-soft transition-[border-color,color,background-color,transform] duration-300 hover:border-brand hover:bg-brand-soft hover:text-brand-ink active:scale-95"
+                  @click="instruction = hint"
+                >
+                  {{ hint }}
+                </button>
+              </div>
+            </div>
+
+            <ToggleSwitch
+              v-model="useLlm"
+              label="تحلیل هوشمند با مدل زبانی"
+              hint="اگر خاموش باشد، فقط نمودارها و جدول‌های قطعیِ استخراج‌شده از خود جدول‌ها ساخته می‌شود (سریع‌تر و بدون مدل)."
+            />
           </div>
         </div>
-
-        <label class="flex cursor-pointer items-start gap-3 text-sm text-ink-soft">
-          <input v-model="useLlm" type="checkbox" class="mt-1 size-4 accent-[var(--turquoise)]" />
-          <span>
-            <span class="font-medium text-ink">تحلیل هوشمند با مدل زبانی</span>
-            <span class="block text-xs leading-6 text-ink-mute">
-              اگر خاموش باشد، فقط نمودارها و جدول‌های قطعیِ استخراج‌شده از خود جدول‌ها ساخته می‌شود (سریع‌تر و بدون مدل).
-            </span>
-          </span>
-        </label>
       </div>
     </section>
 
@@ -153,10 +154,17 @@ function downloadJson() {
         <SkeletonBlock class="h-80" />
         <SkeletonBlock class="h-80" />
       </div>
-      <p class="flex items-center justify-center gap-2 text-center text-sm text-ink-mute">
-        <Sparkles class="size-4 text-turquoise" aria-hidden="true" />
-        {{ store.generating ? STAGES[stage] : 'در حال دریافت گزارش…' }}
-      </p>
+      <div class="mx-auto flex max-w-md flex-col items-center gap-3">
+        <div class="h-1.5 w-full overflow-hidden rounded-full bg-line">
+          <div class="bar-stripes h-full rounded-full bg-brand transition-[width] duration-[1500ms] ease-out" :style="{ width: store.generating ? `${25 + stage * 25}%` : '40%' }" />
+        </div>
+        <Transition name="swap" mode="out-in">
+          <p :key="store.generating ? stage : 'load'" class="flex items-center justify-center gap-2 text-center text-sm text-ink-soft">
+            <Sparkles class="size-4 animate-pulse text-brand-ink" aria-hidden="true" />
+            {{ store.generating ? STAGES[stage] : 'در حال دریافت گزارش…' }}
+          </p>
+        </Transition>
+      </div>
     </div>
 
     <!-- خطا -->
@@ -168,14 +176,14 @@ function downloadJson() {
     <EmptyState
       v-else-if="!selected"
       :icon="FileText"
-      :title="eligible.length ? 'یک سند انتخاب کنید' : 'هنوز سندی آماده نیست'"
+      :title="eligible.length ? 'یک سند را انتخاب کنید' : 'هنوز سندی آماده نیست'"
       :description="
         eligible.length
           ? 'برای هر PDF با هر موضوعی می‌توانید داشبوردی از شاخص‌ها، نمودارها و تحلیل بسازید.'
           : 'ابتدا یک PDF بارگذاری کنید و مرحلهٔ «استخراج متن» را اجرا کنید.'
       "
     >
-      <RouterLink v-if="!eligible.length" to="/sources"><BaseButton>بارگذاری سند</BaseButton></RouterLink>
+      <BaseButton v-if="!eligible.length" to="/sources">بارگذاری سند</BaseButton>
     </EmptyState>
 
     <!-- برای این سند هنوز گزارشی نیست -->
@@ -190,7 +198,7 @@ function downloadJson() {
 
     <!-- داشبورد -->
     <template v-else>
-      <section class="rounded-panel border border-line bg-card p-6">
+      <section class="reveal rounded-panel border border-line bg-card p-4 shadow-soft sm:p-6">
         <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-ink-mute">
           <span class="inline-flex items-center gap-1.5" dir="auto">
             <FileText class="size-4" aria-hidden="true" />
@@ -200,13 +208,13 @@ function downloadJson() {
           <span v-if="dashboard.meta?.table_count != null">{{ faNumber(dashboard.meta.table_count) }} جدول</span>
           <span
             class="rounded-full px-2 py-0.5"
-            :class="dashboard.meta?.llm_used ? 'bg-turquoise-soft text-turquoise' : 'bg-card-soft text-ink-mute'"
+            :class="dashboard.meta?.llm_used ? 'bg-brand-soft text-brand-ink' : 'bg-card-soft text-ink-mute'"
           >
             {{ dashboard.meta?.llm_used ? 'با تحلیل هوشمند' : 'بدون مدل زبانی' }}
           </span>
 
           <div class="no-print ms-auto flex items-center gap-1">
-            <button type="button" class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 transition-colors hover:bg-card-soft hover:text-ink" @click="downloadJson">
+            <button type="button" class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 transition-colors hover:bg-card-soft hover:text-ink active:scale-95" @click="downloadJson">
               <Braces class="size-4" aria-hidden="true" /> JSON
             </button>
             <button type="button" class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 transition-colors hover:bg-card-soft hover:text-ink" @click="printPage">
@@ -215,7 +223,7 @@ function downloadJson() {
           </div>
         </div>
 
-        <h2 class="mt-4 text-xl font-extrabold leading-9 text-ink" dir="auto">{{ dashboard.title || 'داشبورد' }}</h2>
+        <h2 class="mt-4 text-lg font-extrabold leading-9 text-ink sm:text-xl" dir="auto">{{ dashboard.title || 'داشبورد' }}</h2>
         <p v-if="dashboard.summary" class="mt-3 max-w-4xl text-sm leading-8 text-ink-soft" dir="auto">{{ dashboard.summary }}</p>
       </section>
 

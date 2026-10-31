@@ -29,32 +29,34 @@ const empty = computed(() => !kpis.value.length && !charts.value.length && !tabl
 <template>
   <div class="space-y-8">
     <section v-if="kpis.length" aria-label="شاخص‌های کلیدی">
-      <h2 class="mb-3 text-sm font-bold text-ink-soft">شاخص‌های کلیدی</h2>
+      <h2 class="mb-3 flex items-center gap-2 text-sm font-extrabold text-ink-soft before:h-4 before:w-1 before:rounded-full before:bg-brand">شاخص‌های کلیدی</h2>
       <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <KpiRenderer v-for="(item, i) in kpis" :key="item.id ?? i" :component="item" :index="i" />
       </div>
     </section>
 
     <section v-if="charts.length" aria-label="نمودارها">
-      <h2 class="mb-3 text-sm font-bold text-ink-soft">نمودارها</h2>
+      <h2 class="mb-3 flex items-center gap-2 text-sm font-extrabold text-ink-soft before:h-4 before:w-1 before:rounded-full before:bg-brand">نمودارها</h2>
       <div class="grid grid-flow-dense gap-6 lg:grid-cols-2">
         <ChartRenderer
           v-for="(item, i) in charts"
           :key="item.id ?? i"
           :component="item"
+          class="reveal"
+          :style="{ '--i': i }"
           :class="wide(item) && 'lg:col-span-2'"
         />
       </div>
     </section>
 
     <section v-if="tables.length" aria-label="جدول‌ها">
-      <h2 class="mb-3 text-sm font-bold text-ink-soft">جدول‌ها</h2>
+      <h2 class="mb-3 flex items-center gap-2 text-sm font-extrabold text-ink-soft before:h-4 before:w-1 before:rounded-full before:bg-brand">جدول‌ها</h2>
       <div class="space-y-6">
-        <TableRenderer v-for="(item, i) in tables" :key="item.id ?? i" :component="item" />
+        <TableRenderer v-for="(item, i) in tables" :key="item.id ?? i" class="reveal" :style="{ '--i': i }" :component="item" />
       </div>
     </section>
 
-    <div v-if="empty" class="rounded-panel border border-line bg-card p-8 text-center text-sm text-ink-mute">
+    <div v-if="empty" class="rounded-panel border border-dashed border-line bg-card p-8 text-center text-sm text-ink-mute">
       این داشبورد شاخص، نمودار یا جدول قابل نمایشی ندارد؛ بخش تحلیل متنی را در ادامه ببینید.
     </div>
   </div>

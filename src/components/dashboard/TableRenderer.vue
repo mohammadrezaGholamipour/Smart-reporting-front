@@ -80,7 +80,7 @@ function exportCsv() {
 </script>
 
 <template>
-  <section class="rounded-panel border border-line bg-card p-5 sm:p-6">
+  <section class="min-w-0 rounded-panel border border-line bg-card p-4 shadow-soft sm:p-6">
     <header class="mb-4 flex flex-wrap items-start justify-between gap-3">
       <div class="min-w-0">
         <h3 class="font-bold leading-7 text-ink" dir="auto">{{ component.title || 'جدول اطلاعات' }}</h3>
@@ -103,8 +103,8 @@ function exportCsv() {
             <th v-for="col in columns" :key="col.key" class="px-4 py-3 text-start font-semibold text-ink" scope="col">
               <button type="button" class="inline-flex items-center gap-1.5" dir="auto" @click="toggleSort(col)">
                 {{ col.label }}
-                <ArrowUp v-if="sort.key === col.key && sort.dir === 1" class="size-3.5 text-turquoise" aria-hidden="true" />
-                <ArrowDown v-else-if="sort.key === col.key" class="size-3.5 text-turquoise" aria-hidden="true" />
+                <ArrowUp v-if="sort.key === col.key && sort.dir === 1" class="size-3.5 text-brand-ink" aria-hidden="true" />
+                <ArrowDown v-else-if="sort.key === col.key" class="size-3.5 text-brand-ink" aria-hidden="true" />
                 <ArrowDownUp v-else class="no-print size-3.5 text-ink-mute/60" aria-hidden="true" />
               </button>
             </th>
@@ -112,7 +112,7 @@ function exportCsv() {
         </thead>
 
         <tbody>
-          <tr v-for="(row, i) in visible" :key="i" class="border-t border-line transition-colors odd:bg-transparent even:bg-card-soft/50 hover:bg-turquoise-soft/40">
+          <tr v-for="(row, i) in visible" :key="i" class="border-t border-line transition-colors odd:bg-transparent even:bg-card-soft/50 hover:bg-brand-soft/40">
             <td
               v-for="col in columns"
               :key="col.key"
@@ -126,7 +126,7 @@ function exportCsv() {
         </tbody>
 
         <tfoot v-if="totals.length">
-          <tr v-for="(row, i) in totals" :key="`t${i}`" class="border-t-2 border-line bg-turquoise-soft/50 font-bold text-ink">
+          <tr v-for="(row, i) in totals" :key="`t${i}`" class="border-t-2 border-line bg-brand-soft/50 font-bold text-ink">
             <td v-for="col in columns" :key="col.key" class="px-4 py-3" :class="col.numeric && 'tabular-nums'" :dir="col.numeric ? 'rtl' : 'auto'">
               {{ cell(row, col) }}
             </td>
